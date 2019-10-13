@@ -49,10 +49,16 @@ const Input = styled.input`
   font-size: 15px;
   outline: none;
   box-sizing: border-box;
+  @media (max-width: 600px) {
+    width: 60%;
+  }
 `;
 
 const DCInput = styled(Input)`
   width: 100px;
+  @media (max-width: 600px) {
+    width: 80px;
+  }
 `;
 
 const FlexColumn = styled.div`
@@ -61,22 +67,34 @@ const FlexColumn = styled.div`
   align-items: center;
   padding: 8px;
   margin-bottom: 24px;
+  @media (max-width: 600px) {
+    // padding: 8px 0;
+  }
 `;
 
 const Detail = styled(FlexColumn)`
   margin: auto 16px 16px;
   border: 2px solid #e4e4e4;
   border-radius: 6px;
+  @media (max-width: 600px) {
+    margin: auto 4px 4px;
+  }
 `;
 
 const RowText = styled.div`
   margin: auto 4px;
   text-align: center;
+  @media (max-width: 600px) {
+    font-size: 14px;
+  }
 `;
 
 const FlexRow = styled.div`
   display: flex;
   padding: 8px;
+  @media (max-width: 600px) {
+    padding: 8px 0;
+  }
   // -webkit-transition: 1s ease-in-out;
   // -moz-transition: 1s ease-in-out;
   // -o-transition: 1s ease-in-out;
@@ -149,7 +167,10 @@ const App = () => {
     setIsConstantDiscount(!isConstantDiscount);
   };
   return (
-    <Fragment>
+    <Fragment>      
+      <AddButton onClick={() => addMember()}>
+        <Text>+ Add more member</Text>
+      </AddButton>
       <FlexColumn>
         {memberList.map((member, i) => (
           <FlexRow>
@@ -169,7 +190,7 @@ const App = () => {
           <DCInput value={discount.rate} onChange={(e) => setDiscount('rate', e.target.value)} disabled={isConstantDiscount} />
           <RowText> % off</RowText>
           <DCInput value={discount.cap} onChange={(e) => setDiscount('cap', e.target.value)} />
-          <RowText> {isConstantDiscount ? 'Discount' : 'Percentage Discount Cap'}</RowText>
+          <RowText> {isConstantDiscount ? 'Discount' : 'Discount Cap'}</RowText>
         </FlexRow>
         <Result>
           Total with Discount: {discounted}
@@ -181,19 +202,16 @@ const App = () => {
           {memberList.map((member, i) => {
             const { discount, toBePaid } = priceDistribution(member.amount);
             return (
-              <FlexRow>
+              <FlexColumn>
                 <RowText>Member {i + 1} discount </RowText>
                 <DCInput value={discount} type="number" disabled />
                 <RowText>to pay </RowText>
                 <DCInput value={toBePaid} type="number" disabled />
-              </FlexRow>
+              </FlexColumn>
             );
           })}
         </Detail>
       }
-      <AddButton onClick={() => addMember()}>
-        <Text>+ Add more member</Text>
-      </AddButton>
     </Fragment>
   );
 };
