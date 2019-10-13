@@ -23,7 +23,8 @@ const useMemberList = (init) => {
 
 const useDiscount = (rate, cap = 0) => {
   const [discountRate, setDiscountRate] = useState({ rate, cap });
-  const calcualteDiscount = (sum) => {
+  const calcualteDiscount = (sum, isConstant = false) => {
+    if (!isConstant && discountRate.rate === 0) return sum;
     const discounted = Math.round((sum * (1 - (discountRate.rate / 100))) * 100) / 100;
     if (discountRate.cap !== 0 && discounted > discountRate.cap) return sum - discountRate.cap;
     return discounted;
@@ -76,6 +77,15 @@ const RowText = styled.div`
 const FlexRow = styled.div`
   display: flex;
   padding: 8px;
+  // -webkit-transition: 1s ease-in-out;
+  // -moz-transition: 1s ease-in-out;
+  // -o-transition: 1s ease-in-out;
+  // transition: 1s ease-in-out;
+`;
+
+const CheckBoxDiv = styled.div`
+  cursor: pointer;
+  margin-bottom: 8px;
 `;
 
 const AddButton = styled.div`
@@ -121,7 +131,8 @@ const App = () => {
   const { memberList, setMemberList, addMember, removeMember, sumTotal} = useMemberList([{ amount: 0 }]);
   const { discount, setDiscount, getDiscountedPrice } = useDiscount(0);
   const [showRaito, setShowRatio] = useState(false);
-  const discounted = getDiscountedPrice(sumTotal)
+  const [isConstantDiscount, setIsConstantDiscount] = useState(false);
+  const discounted = getDiscountedPrice(sumTotal, isConstantDiscount);
   const priceDistribution = (price) => {
     const memberPrice = price;
     const actualDiscount = discount.cap !== 0
@@ -133,6 +144,9 @@ const App = () => {
       discount: discountShare,
       toBePaid: memberPrice - discountShare
     };
+  };
+  const toggleConstantDiscount = () => {
+    setIsConstantDiscount(!isConstantDiscount);
   };
   return (
     <Fragment>
@@ -147,17 +161,21 @@ const App = () => {
       </FlexColumn>
       <Detail>
         <p>Total : {sumTotal}</p>
+        <CheckBoxDiv onClick={toggleConstantDiscount}>
+          <input type="checkbox" checked={isConstantDiscount} />
+          Calculate constant discount
+        </CheckBoxDiv>
         <FlexRow>
-          <DCInput value={discount.rate} onChange={(e) => setDiscount('rate', e.target.value)} />
+          <DCInput value={discount.rate} onChange={(e) => setDiscount('rate', e.target.value)} disabled={isConstantDiscount} />
           <RowText> % off</RowText>
           <DCInput value={discount.cap} onChange={(e) => setDiscount('cap', e.target.value)} />
-          <RowText> cap</RowText>
+          <RowText> {isConstantDiscount ? 'Discount' : 'Percentage Discount Cap'}</RowText>
         </FlexRow>
         <Result>
           Total with Discount: {discounted}
         </Result>
       </Detail>
-      <Extender onClick={() => setShowRatio(!showRaito)}>Show distribution {showRaito ? '^' : 'V'}</Extender>
+      <Extender onClick={() => setShowRatio(!showRaito)}>{showRaito ? 'Hide' : 'Show'} distribution</Extender>
       {showRaito &&
         <Detail>
           {memberList.map((member, i) => {
