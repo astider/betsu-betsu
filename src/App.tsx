@@ -1,16 +1,19 @@
 import React, { useState, Fragment } from 'react';
 import styled from 'styled-components';
 
-const useMemberList = (init) => {
-  const [memberListState, setMemberListState] = useState(init);
-  const setMemberList = (index, key, value) => {
-    console.log(index, key, value);
+interface Member {
+  amount: number
+}
+
+const useMemberList = (init: Member[]) => {
+  const [memberListState, setMemberListState] = useState<Member[]>(init);
+  const setMemberList = (index: number, key: string, value: string) => {
     setMemberListState(memberListState
       .map((member, i) => (i === index) ? { ...member, [key]: value } : member)
     );
   }
   const addMember = () => setMemberListState([...memberListState, { amount: 0 }]);
-  const removeMember = (index) => setMemberListState(memberListState.filter((member, i) => i !== index));
+  const removeMember = (index: number) => setMemberListState(memberListState.filter((member, i) => i !== index));
   const sumTotal = memberListState.reduce((sum, mem) => sum + Number(mem.amount), 0);
   return {
     setMemberList,
@@ -21,18 +24,23 @@ const useMemberList = (init) => {
   };
 };
 
-const useDiscount = (rate, cap = 0) => {
-  const [discountRate, setDiscountRate] = useState({ rate, cap });
-  const calcualteDiscount = (sum, isConstant = false) => {
+interface DiscountRate {
+  rate: number
+  cap: number
+}
+
+const useDiscount = (rate: number, cap = 0) => {
+  const [discountRate, setDiscountRate] = useState<DiscountRate>({ rate, cap });
+  const calcualteDiscount = (sum: number, isConstant = false) => {
     if (!isConstant && discountRate.rate === 0) return sum;
     const discounted = Math.round((sum * (1 - (discountRate.rate / 100))) * 100) / 100;
     if (discountRate.cap !== 0 && discounted > discountRate.cap) return sum - discountRate.cap;
     return discounted;
   };
-  const setDiscount = (type, value) => {
+  const setDiscount = (type: string, value: string) => {
     const newDiscount = type === 'rate'
-      ? { rate: value, cap: discountRate.cap }
-      : { rate: discountRate.rate, cap: value }
+      ? { rate: Number(value), cap: discountRate.cap }
+      : { rate: discountRate.rate, cap: Number(value) }
     setDiscountRate(newDiscount);
   };
   return {
@@ -151,7 +159,7 @@ const App = () => {
   const [showRaito, setShowRatio] = useState(false);
   const [isConstantDiscount, setIsConstantDiscount] = useState(false);
   const discounted = getDiscountedPrice(sumTotal, isConstantDiscount);
-  const priceDistribution = (price) => {
+  const priceDistribution = (price: number) => {
     const memberPrice = price;
     const actualDiscount = discount.cap !== 0
       ? (sumTotal - discounted > discount.cap ? discount.cap : sumTotal - discounted)
