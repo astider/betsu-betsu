@@ -1,17 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { ThemeProvider } from 'styled-components';
+
 import App from './App';
+import theme from './theme';
 import * as serviceWorker from './serviceWorker';
 
 const rootElement = document.getElementById('root');
 
-ReactDOM.render(<App />, rootElement);
+const EntryComponent = (Comp: any) => (
+  <ThemeProvider theme={theme}>
+    <Comp />
+  </ThemeProvider>
+);
+
+ReactDOM.render(EntryComponent(App), rootElement);
 
 if ((module as any).hot) {
   (module as any).hot.accept('./App', () => {
     const NextApp = require('./App').default; // eslint-disable-line
     ReactDOM.render(
-      <NextApp />,
+      EntryComponent(NextApp),
       rootElement,
     );
   });

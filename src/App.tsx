@@ -1,28 +1,9 @@
 import React, { useState, Fragment } from 'react';
 import styled from 'styled-components';
 
-interface Member {
-  amount: number
-}
-
-const useMemberList = (init: Member[]) => {
-  const [memberListState, setMemberListState] = useState<Member[]>(init);
-  const setMemberList = (index: number, key: string, value: string) => {
-    setMemberListState(memberListState
-      .map((member, i) => (i === index) ? { ...member, [key]: value } : member)
-    );
-  }
-  const addMember = () => setMemberListState([...memberListState, { amount: 0 }]);
-  const removeMember = (index: number) => setMemberListState(memberListState.filter((member, i) => i !== index));
-  const sumTotal = memberListState.reduce((sum, mem) => sum + Number(mem.amount), 0);
-  return {
-    setMemberList,
-    memberList: memberListState,
-    addMember,
-    removeMember,
-    sumTotal
-  };
-};
+import Title from './components/Title';
+import Counter from './components/Counter';
+import useMemberList from './hooks/use-member-list';
 
 interface DiscountRate {
   rate: number
@@ -50,6 +31,11 @@ const useDiscount = (rate: number, cap = 0) => {
   }
 };
 
+const Container = styled.div`
+  max-width: 1000px;
+  margin: 0 auto;
+`;
+
 const Input = styled.input`
   border-radius: 6px;
   border: 1px solid #d8d8d8;
@@ -57,6 +43,8 @@ const Input = styled.input`
   font-size: 15px;
   outline: none;
   box-sizing: border-box;
+  width: 100px;
+  margin-left: 8px;
   @media (max-width: 600px) {
     width: 60%;
   }
@@ -153,10 +141,39 @@ const Result = styled.div`
   background-color: #e4e4e4;
 `;
 
+const Row = styled.div`
+  display: flex;
+  @media(max-width: 768px) {
+    flex-direction: column;
+  }
+`;
+
+const Column = styled.div`
+  flex: 1;
+  background-color: ${props => props.theme.white};
+  border-radius: 4px;
+  padding: 16px;
+  &:first-child {
+    margin-right: 8px;
+  }
+  &:nth-child(2) {
+    margin: 0 8px;
+    flex: 2;
+  }
+  &:last-child {
+    margin-left: 8px;
+  }
+`;
+
+const StepTitle = styled.p`
+  font-weight: 600;
+  margin: 0 0 8px;
+`;
+
 const App = () => {
-  const { memberList, setMemberList, addMember, removeMember, sumTotal} = useMemberList([{ amount: 0 }]);
+  const { memberList, setMemberList, addMember, removeMember, sumTotal } = useMemberList([{ amount: 0 }]);
   const { discount, setDiscount, getDiscountedPrice } = useDiscount(0);
-  const [showRaito, setShowRatio] = useState(false);
+  const [showRatio, setShowRatio] = useState(false);
   const [isConstantDiscount, setIsConstantDiscount] = useState(false);
   const discounted = getDiscountedPrice(sumTotal, isConstantDiscount);
   const priceDistribution = (price: number) => {
@@ -174,38 +191,53 @@ const App = () => {
   const toggleConstantDiscount = () => {
     setIsConstantDiscount(!isConstantDiscount);
   };
+  function onChangeCounter(count: number) {
+    if (count > memberList.length) {
+      addMember();
+    } else if (count < memberList.length) {
+      removeMember(memberList.length - 1);
+    }
+  }
   return (
-    <Fragment>      
-      <AddButton onClick={() => addMember()}>
-        <Text>+ Add more member</Text>
-      </AddButton>
-      <FlexColumn>
-        {memberList.map((member, i) => (
+    <Container>
+      <Title />
+      <Row>
+        <Column>
+          <StepTitle>1. How many?</StepTitle>
+          <Counter
+            onChange={onChangeCounter}
+          />
+        </Column>
+        <Column>
+          <StepTitle>2. What is the discount condition?</StepTitle>
+          <CheckBoxDiv onClick={toggleConstantDiscount}>
+            <input type="checkbox" checked={isConstantDiscount} />
+            Calculate constant discount
+          </CheckBoxDiv>
           <FlexRow>
-            <RowText>Member {i + 1}</RowText>
-            <Input value={member.amount} type="number" onChange={e => setMemberList(i, 'amount', e.target.value)} />
-            <DelButton onClick={() => removeMember(i)}><Text>X</Text></DelButton>
+            <DCInput value={discount.rate} onChange={(e) => setDiscount('rate', e.target.value)} disabled={isConstantDiscount} />
+            <RowText> % off</RowText>
+            <DCInput value={discount.cap} onChange={(e) => setDiscount('cap', e.target.value)} />
+            <RowText> {isConstantDiscount ? 'Discount' : 'Discount Cap'}</RowText>
           </FlexRow>
-        ))}
-      </FlexColumn>
-      <Detail>
-        <p>Total : {sumTotal}</p>
-        <CheckBoxDiv onClick={toggleConstantDiscount}>
-          <input type="checkbox" checked={isConstantDiscount} />
-          Calculate constant discount
-        </CheckBoxDiv>
-        <FlexRow>
-          <DCInput value={discount.rate} onChange={(e) => setDiscount('rate', e.target.value)} disabled={isConstantDiscount} />
-          <RowText> % off</RowText>
-          <DCInput value={discount.cap} onChange={(e) => setDiscount('cap', e.target.value)} />
-          <RowText> {isConstantDiscount ? 'Discount' : 'Discount Cap'}</RowText>
-        </FlexRow>
-        <Result>
-          Total with Discount: {discounted}
-        </Result>
-      </Detail>
-      <Extender onClick={() => setShowRatio(!showRaito)}>{showRaito ? 'Hide' : 'Show'} distribution</Extender>
-      {showRaito &&
+        </Column>
+        <Column>
+          <StepTitle>3. How much did each one pay?</StepTitle>
+          {memberList.map((member, i) => (
+            <FlexRow>
+              <RowText>No. {i + 1}</RowText>
+              <Input value={member.amount} type="number" onChange={e => setMemberList(i, 'amount', e.target.value)} />
+              <DelButton onClick={() => removeMember(i)}><Text>X</Text></DelButton>
+            </FlexRow>
+          ))}
+          <p><b>Total:</b> {sumTotal}</p>
+          <Result>
+            Total with Discount: {discounted}
+          </Result>
+        </Column>
+      </Row>
+      <Extender onClick={() => setShowRatio(!showRatio)}>{showRatio ? 'Hide' : 'Show'} your distribution!</Extender>
+      {showRatio &&
         <Detail>
           {memberList.map((member, i) => {
             const { discount, toBePaid } = priceDistribution(member.amount);
@@ -220,7 +252,7 @@ const App = () => {
           })}
         </Detail>
       }
-    </Fragment>
+    </Container>
   );
 };
 
