@@ -3,5 +3,8 @@ export default {
   cream: '#E9E8E0',
   red: '#7f0019',
   lightGray: '#E9E9E7',
-  white: '#ffffff'
+  white: '#ffffff',
+  blue: '#415463',
+  green: '#2e963d',
+  black: '#000000'
 }

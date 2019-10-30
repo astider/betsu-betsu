@@ -1,39 +1,17 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import Title from './components/Title';
 import Counter from './components/Counter';
 import useMemberList from './hooks/use-member-list';
-
-interface DiscountRate {
-  rate: number
-  cap: number
-}
-
-const useDiscount = (rate: number, cap = 0) => {
-  const [discountRate, setDiscountRate] = useState<DiscountRate>({ rate, cap });
-  const calcualteDiscount = (sum: number, isConstant = false) => {
-    if (!isConstant && discountRate.rate === 0) return sum;
-    const discounted = Math.round((sum * (1 - (discountRate.rate / 100))) * 100) / 100;
-    if (discountRate.cap !== 0 && discounted > discountRate.cap) return sum - discountRate.cap;
-    return discounted;
-  };
-  const setDiscount = (type: string, value: string) => {
-    const newDiscount = type === 'rate'
-      ? { rate: Number(value), cap: discountRate.cap }
-      : { rate: discountRate.rate, cap: Number(value) }
-    setDiscountRate(newDiscount);
-  };
-  return {
-    setDiscount,
-    discount: discountRate,
-    getDiscountedPrice: calcualteDiscount,
-  }
-};
+import useDiscount from './hooks/use-discount';
 
 const Container = styled.div`
   max-width: 1000px;
   margin: 0 auto;
+  @media(max-width: 768px) {
+    padding: 0 5%;
+  }
 `;
 
 const Input = styled.input`
@@ -45,42 +23,22 @@ const Input = styled.input`
   box-sizing: border-box;
   width: 100px;
   margin-left: 8px;
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     width: 60%;
   }
 `;
 
 const DCInput = styled(Input)`
   width: 100px;
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     width: 80px;
-  }
-`;
-
-const FlexColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px;
-  margin-bottom: 24px;
-  @media (max-width: 600px) {
-    // padding: 8px 0;
-  }
-`;
-
-const Detail = styled(FlexColumn)`
-  margin: auto 16px 16px;
-  border: 2px solid #e4e4e4;
-  border-radius: 6px;
-  @media (max-width: 600px) {
-    margin: auto 4px 4px;
   }
 `;
 
 const RowText = styled.div`
   margin: auto 4px;
   text-align: center;
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     font-size: 14px;
   }
 `;
@@ -88,7 +46,7 @@ const RowText = styled.div`
 const FlexRow = styled.div`
   display: flex;
   padding: 8px;
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     padding: 8px 0;
   }
   // -webkit-transition: 1s ease-in-out;
@@ -100,16 +58,6 @@ const FlexRow = styled.div`
 const CheckBoxDiv = styled.div`
   cursor: pointer;
   margin-bottom: 8px;
-`;
-
-const AddButton = styled.div`
-  width: 100%;
-  height: 48px;
-  border-radius: 6px;
-  background-color: blue;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
 `;
 
 const DelButton = styled.div`
@@ -124,56 +72,82 @@ const DelButton = styled.div`
   height: 20px;
 `;
 
-const Extender = styled.div`
-  margin: 8px auto;
-  padding: 16px;
-  cursor: pointer;
-`;
-
 const Text = styled.p`
   color: white;
   margin: 0 auto;
 `;
 
-const Result = styled.div`
-  border-radius: 6px;
-  padding: 8px 16px;
-  background-color: #e4e4e4;
-`;
-
 const Row = styled.div`
   display: flex;
+  margin-bottom: 24px;
   @media(max-width: 768px) {
     flex-direction: column;
+    margin-bottom: 0;
   }
 `;
 
 const Column = styled.div`
   flex: 1;
-  background-color: ${props => props.theme.white};
   border-radius: 4px;
+  background-color: ${props => props.theme.blue};
   padding: 16px;
   &:first-child {
     margin-right: 8px;
   }
+  &:last-child {
+    margin-left: 8px;
+  }
+  color: ${props => props.theme.white};
+  @media(max-width: 768px) {
+    &:nth-child(n) {
+      margin: 0 0 16px;
+    }
+  }
+`;
+
+const DistributionColumn = styled(Column)`
+  flex: 2;
+`;
+
+const StepColumn = styled(Column)`
+  background-color: ${props => props.theme.white};
+  color: ${props => props.theme.black};
   &:nth-child(2) {
     margin: 0 8px;
     flex: 2;
   }
-  &:last-child {
-    margin-left: 8px;
+  @media(max-width: 768px) {
+    &:nth-child(n) {
+      margin: 0 0 16px;
+    }
   }
 `;
 
 const StepTitle = styled.p`
   font-weight: 600;
-  margin: 0 0 8px;
+  margin: 0 0 12px;
+  line-height: 23px;
+`;
+
+const PriceLabel = styled.p`
+  font-size: 16px;
+  font-weight: 400;
+  margin: 0 0 4px;
+`;
+
+const PriceText = styled.p`
+  font-size: 48px;
+  font-weight: 600;
+  margin: 0;
+`;
+
+const DistributionLabel = styled(PriceLabel)`
+  font-weight: 600;
 `;
 
 const App = () => {
   const { memberList, setMemberList, addMember, removeMember, sumTotal } = useMemberList([{ amount: 0 }]);
   const { discount, setDiscount, getDiscountedPrice } = useDiscount(0);
-  const [showRatio, setShowRatio] = useState(false);
   const [isConstantDiscount, setIsConstantDiscount] = useState(false);
   const discounted = getDiscountedPrice(sumTotal, isConstantDiscount);
   const priceDistribution = (price: number) => {
@@ -202,13 +176,13 @@ const App = () => {
     <Container>
       <Title />
       <Row>
-        <Column>
+        <StepColumn>
           <StepTitle>1. How many?</StepTitle>
           <Counter
             onChange={onChangeCounter}
           />
-        </Column>
-        <Column>
+        </StepColumn>
+        <StepColumn>
           <StepTitle>2. What is the discount condition?</StepTitle>
           <CheckBoxDiv onClick={toggleConstantDiscount}>
             <input type="checkbox" checked={isConstantDiscount} />
@@ -220,8 +194,8 @@ const App = () => {
             <DCInput value={discount.cap} onChange={(e) => setDiscount('cap', e.target.value)} />
             <RowText> {isConstantDiscount ? 'Discount' : 'Discount Cap'}</RowText>
           </FlexRow>
-        </Column>
-        <Column>
+        </StepColumn>
+        <StepColumn>
           <StepTitle>3. How much did each one pay?</StepTitle>
           {memberList.map((member, i) => (
             <FlexRow>
@@ -230,28 +204,27 @@ const App = () => {
               <DelButton onClick={() => removeMember(i)}><Text>X</Text></DelButton>
             </FlexRow>
           ))}
-          <p><b>Total:</b> {sumTotal}</p>
-          <Result>
-            Total with Discount: {discounted}
-          </Result>
-        </Column>
+        </StepColumn>
       </Row>
-      <Extender onClick={() => setShowRatio(!showRatio)}>{showRatio ? 'Hide' : 'Show'} your distribution!</Extender>
-      {showRatio &&
-        <Detail>
+      <Row>
+        <Column>
+          <PriceLabel>Net Total</PriceLabel>
+          <PriceText>{sumTotal}</PriceText>
+        </Column>
+        <Column>
+          <PriceLabel>Grand Total</PriceLabel>
+          <PriceText>{discounted}</PriceText>
+        </Column>
+        <DistributionColumn>
+          <DistributionLabel>Distribution</DistributionLabel>
           {memberList.map((member, i) => {
             const { discount, toBePaid } = priceDistribution(member.amount);
             return (
-              <FlexColumn>
-                <RowText>Member {i + 1} discount </RowText>
-                <DCInput value={discount} type="number" disabled />
-                <RowText>to pay </RowText>
-                <DCInput value={toBePaid} type="number" disabled />
-              </FlexColumn>
+              <p>No. {i + 1} paid {toBePaid} (Discount: {discount})</p>
             );
           })}
-        </Detail>
-      }
+        </DistributionColumn>
+      </Row>
     </Container>
   );
 };
