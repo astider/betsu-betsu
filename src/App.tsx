@@ -68,6 +68,10 @@ const StepTitle = styled.p`
   line-height: 23px;
 `;
 
+const SubTitle = styled.span`
+  font-size: 10px;
+`;
+
 const PriceLabel = styled.p`
   font-size: 16px;
   font-weight: 400;
@@ -131,7 +135,7 @@ const App = () => {
           />
         </StepColumn>
         <StepColumn>
-          <StepTitle>3. How much did each one pay?</StepTitle>
+          <StepTitle>3. How much did each one pay? <SubTitle>(Price before discount)</SubTitle></StepTitle>
           <PayList
             memberList={memberList}
             setMemberList={setMemberList}

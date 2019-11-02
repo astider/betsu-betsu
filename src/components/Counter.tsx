@@ -56,7 +56,7 @@ const Counter: React.FC<IProps> = props => {
     if (!isMounted.current) {
       isMounted.current = true;
     }
-  }, [count]);
+  }, [count, onChange]);
   return (
     <Container>
       <Button disabled={isLeftDisable} onClick={decrement}>-</Button>
