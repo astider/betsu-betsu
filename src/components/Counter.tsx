@@ -40,11 +40,14 @@ const Counter: React.FC<IProps> = props => {
   const { onChange, initial } = props;
   const isMounted = useRef<boolean>(false);
   const [count, setCount] = useState<number>(initial || 1);
+  const isLeftDisable = count === 1;
   function increment() {
     setCount((prevCount: number) => prevCount + 1);
   }
   function decrement() {
-    setCount((prevCount: number) => prevCount - 1);
+    setCount((prevCount: number) => {
+      return prevCount > 1 ? prevCount - 1 : prevCount;
+    });
   }
   useEffect(() => {
     if (isMounted.current && onChange) {
@@ -56,7 +59,7 @@ const Counter: React.FC<IProps> = props => {
   }, [count]);
   return (
     <Container>
-      <Button onClick={decrement}>-</Button>
+      <Button disabled={isLeftDisable} onClick={decrement}>-</Button>
       <NumberContainer>
         <p>{count}</p>
       </NumberContainer>
