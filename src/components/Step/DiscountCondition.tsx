@@ -60,9 +60,9 @@ const DiscountCondition: React.FC<IProps> = props => {
         Calculate constant discount
       </CheckBoxDiv>
       <FlexRow>
-        <DCInput value={discount.rate} onChange={(e) => setDiscount('rate', e.target.value)} disabled={isConstantDiscount} />
+        <DCInput type="number" value={discount.rate} onChange={(e) => setDiscount('rate', e.target.value)} disabled={isConstantDiscount} />
         <RowText> % off</RowText>
-        <DCInput value={discount.cap} onChange={(e) => setDiscount('cap', e.target.value)} />
+        <DCInput type="number" value={discount.cap} onChange={(e) => setDiscount('cap', e.target.value)} />
         <RowText> {isConstantDiscount ? 'Discount' : 'Discount Cap'}</RowText>
       </FlexRow>
     </>
