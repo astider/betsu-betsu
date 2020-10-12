@@ -29,7 +29,7 @@ const Row = styled.div`
 const Column = styled.div`
   flex: 1;
   border-radius: 4px;
-  background-color: ${props => props.theme.blue};
+  background-color: ${props => props.theme.brown};
   padding: 16px;
   &:first-child {
     margin-right: 8px;
