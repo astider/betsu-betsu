@@ -7,6 +7,7 @@ import DiscountCondition from './components/Step/DiscountCondition';
 import useMemberList from './hooks/use-member-list';
 import useDiscount from './hooks/use-discount';
 import PayList from './components/Step/PayList';
+import NameList from './components/Step/NameList';
 
 const Container = styled.div`
   max-width: 1000px;
@@ -89,7 +90,7 @@ const DistributionLabel = styled(PriceLabel)`
 `;
 
 const App = () => {
-  const { memberList, setMemberList, addMember, removeMember, sumTotal } = useMemberList([{ amount: 0 }]);
+  const { memberList, setMemberList, addMember, removeMember, sumTotal } = useMemberList([{ amount: 0, name: 'No. 1' }]);
   const { discount, setDiscount, getDiscountedPrice } = useDiscount(0);
   const [isConstantDiscount, setIsConstantDiscount] = useState(false);
   const discounted = getDiscountedPrice(sumTotal, isConstantDiscount);
@@ -124,6 +125,11 @@ const App = () => {
           <Counter
             onChange={onChangeCounter}
           />
+          <NameList
+            memberList={memberList}
+            setMemberList={setMemberList}
+            removeMember={removeMember}
+          />
         </StepColumn>
         <StepColumn>
           <StepTitle>2. What is the discount condition?</StepTitle>
@@ -157,7 +163,8 @@ const App = () => {
           {memberList.map((member, i) => {
             const { discount, toBePaid } = priceDistribution(member.amount);
             return (
-              <p>No. {i + 1} paid {toBePaid} (Discount: {discount})</p>
+              // <p>No. {i + 1} paid {toBePaid} (Discount: {discount})</p>
+              <p>{member.name} paid {toBePaid} (Discount: {discount})</p>
             );
           })}
         </DistributionColumn>

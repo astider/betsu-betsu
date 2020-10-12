@@ -7,7 +7,7 @@ export default function useMemberList(init: Member[]) {
       .map((member, i) => (i === index) ? { ...member, [key]: value } : member)
     );
   }
-  const addMember = () => setMemberListState([...memberListState, { amount: 0 }]);
+  const addMember = () => setMemberListState([...memberListState, { amount: 0, name: `No. ${memberListState.length + 1}` }]);
   const removeMember = (index: number) => setMemberListState(memberListState.filter((member, i) => i !== index));
   const sumTotal = memberListState.reduce((sum, mem) => sum + Number(mem.amount), 0);
   return {
