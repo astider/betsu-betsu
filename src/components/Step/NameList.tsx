@@ -54,18 +54,18 @@ interface IProps {
   removeMember: any
 }
 
-const PayList: React.FC<IProps> = props => {
+const NameList: React.FC<IProps> = props => {
   const { memberList, setMemberList } = props;
   return (
     <>
       {memberList.map((member, i) => (
         <FlexRow>
           {/* <RowText>No. {i + 1}</RowText> */}
-          <RowText>{member.name}</RowText>
+          <RowText>{i + 1}.</RowText>
           <Input
-            value={member.amount}
-            type="number"
-            onChange={e => setMemberList(i, 'amount', e.target.value)}
+            value={member.name}
+            type="text"
+            onChange={e => setMemberList(i, 'name', e.target.value)}
           />
           {/* <DelButton onClick={() => removeMember(i)}><Text>X</Text></DelButton> */}
         </FlexRow>
@@ -74,4 +74,4 @@ const PayList: React.FC<IProps> = props => {
   );
 };
 
-export default PayList;
+export default NameList;
