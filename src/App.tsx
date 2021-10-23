@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { 
+  BrowserRouter as Router,
+  useLocation,
+  Link,
+} from 'react-router-dom';
 
 import Title from './components/Title';
 import Counter from './components/Counter';
@@ -7,6 +12,7 @@ import DiscountCondition from './components/Step/DiscountCondition';
 import useMemberList from './hooks/use-member-list';
 import useDiscount from './hooks/use-discount';
 import PayList from './components/Step/PayList';
+import VisionPage from './vision/index';
 import NameList from './components/Step/NameList';
 
 const Container = styled.div`
@@ -89,11 +95,16 @@ const DistributionLabel = styled(PriceLabel)`
   font-weight: 600;
 `;
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 const App = () => {
   const { memberList, setMemberList, addMember, removeMember, sumTotal } = useMemberList([{ amount: 0, name: 'No. 1' }]);
   const { discount, setDiscount, getDiscountedPrice } = useDiscount(0);
   const [isConstantDiscount, setIsConstantDiscount] = useState(false);
   const discounted = getDiscountedPrice(sumTotal, isConstantDiscount);
+  const query = useQuery();
   const priceDistribution = (price: number) => {
     const memberPrice = price;
     const actualDiscount = discount.cap !== 0
@@ -116,9 +127,17 @@ const App = () => {
       removeMember(memberList.length - 1);
     }
   }
+  if (query.get('beta') === 'true') {
+    return <VisionPage />
+  }
   return (
     <Container>
       <Title />
+      <div>
+        <Link to="/?beta=true">Try new feature?</Link>
+      </div>
+      <br />
+      <br />
       <Row>
         <StepColumn>
           <StepTitle>1. How many?</StepTitle>
@@ -173,4 +192,6 @@ const App = () => {
   );
 };
 
-export default App;
+const RoutedApp = () => <Router><App /></Router>
+
+export default RoutedApp;
