@@ -11,6 +11,8 @@ const Container = styled.div`
 const H1 = styled.h1`
   font-size: 4em;
   margin: 0;
+  /* color: ${props => props.theme.notBlack}; */
+  color: ${props => props.theme.brown};
 `;
 
 const Eng = styled.h2`
