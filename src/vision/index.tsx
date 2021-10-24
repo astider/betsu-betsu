@@ -58,17 +58,17 @@ const VisionPage: React.FC = props => {
       if (!file) return;
       const formData = new FormData();
       formData.append('file', file);
-      const URL = 'https://us-central1-betsu-74576.cloudfunctions.net/upload';
-      const textList: string[] = await axios.post(
+      const URL = 'https://us-central1-betsu-74576.cloudfunctions.net/vision/upload';
+      const textList: { list: string[] } = await axios.post<{ list: string[] }>(
         URL,
-        file,
+        formData,
         { headers:
           {
             'content-type': 'multipart/form-data'
           },
         },
-      );
-      setFoundText(textList);
+      ).then(resp => resp.data);
+      setFoundText(textList.list);
     } catch (e) {
 
     } finally {
