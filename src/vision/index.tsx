@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
@@ -59,8 +59,8 @@ const VisionPage: React.FC = props => {
       if (!file) return;
       const formData = new FormData();
       formData.append('file', file);
-      const URL = 'https://us-central1-betsu-74576.cloudfunctions.net/upload';
-      const textList: string[] = await axios.post(
+      const URL = 'https://us-central1-betsu-74576.cloudfunctions.net/vision/upload';
+      const { list: textList }: { list: string[] } = await axios.post<{ list: string[] }>(
         URL,
         formData,
         { headers:
@@ -68,7 +68,7 @@ const VisionPage: React.FC = props => {
             'content-type': 'multipart/form-data'
           },
         },
-      );
+      ).then(resp => resp.data);
       setFoundText(textList);
       const lowerCasedList = textList.map(text => text.toLowerCase());
       if (
