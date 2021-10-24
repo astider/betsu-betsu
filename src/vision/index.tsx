@@ -39,6 +39,7 @@ const VisionPage: React.FC = props => {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [foundText, setFoundText] = useState<string[]>([]);
+  const [scopeText, setScopeText] = useState<string[]>([]);
   const [touch, setTouch] = useState(false);
 
   const onChangeFile = (elem: HTMLInputElement) => {
@@ -47,7 +48,7 @@ const VisionPage: React.FC = props => {
       return;
     }
     const file = elem.files[0];
-    console.log('File is ', file);
+    // console.log('File is ', file);
     setFile(file);
   }
 
@@ -61,7 +62,7 @@ const VisionPage: React.FC = props => {
       const URL = 'https://us-central1-betsu-74576.cloudfunctions.net/upload';
       const textList: string[] = await axios.post(
         URL,
-        file,
+        formData,
         { headers:
           {
             'content-type': 'multipart/form-data'
@@ -69,6 +70,16 @@ const VisionPage: React.FC = props => {
         },
       );
       setFoundText(textList);
+      const lowerCasedList = textList.map(text => text.toLowerCase());
+      if (
+        lowerCasedList.indexOf('summary')
+        && lowerCasedList.indexOf('total')
+      ) {
+        const start = lowerCasedList.indexOf('summary');
+        const endMinus = lowerCasedList.indexOf('total');
+        const scoped = textList.slice(start, endMinus + 1);
+        setScopeText(scoped);
+      }
     } catch (e) {
 
     } finally {
@@ -99,14 +110,20 @@ const VisionPage: React.FC = props => {
       </Column>
       {isUploading && <div>That's a lot of work isn't it. Wait for a moment sir.</div>}
       {touch && (
-        <div>
-          <p>Here the text we found:</p>
+        <div style={{ marginTop: '24px' }}>
+          <p>{isUploading ? 'finding words...' : 'Here\'s the text we found:'}</p>
           <hr />
-          <p>{foundText.map(t => t).join(', ')}</p>
+          <p>{foundText.length > 0 ? foundText.map(t => t).join(', ') : 'No text found'}</p>
+          <br />
+          <br />
+          <p>Scoped info:</p>
+          <p>{scopeText.length > 0 ? scopeText.map(t => t).join(', ') : 'No scoped text found'}</p>
+          <br />
+
         </div>
       )}
     </Container>
   );
 }
-
+// https://ko-fi.com/astider
 export default VisionPage;
