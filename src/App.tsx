@@ -155,7 +155,7 @@ const App = () => {
     const elem = document.getElementById('distribution-section');
     if (window && navigator && elem) {
       const canvas = await html2canvas(elem);
-      canvas.toBlob((blob) => {
+      canvas.toBlob(async (blob) => {
         if (blob) {
           if (type === 'download') {
             const url = URL.createObjectURL(blob);
@@ -166,7 +166,8 @@ const App = () => {
           }
           if (type === 'copy') {
             const data = [new ClipboardItem({ [blob.type]: blob })];
-            navigator.clipboard.write(data);
+            await navigator.clipboard.write(data);
+            alert('copied to clipboard');
           }
         }
       });
@@ -246,6 +247,8 @@ const App = () => {
             <img src="/copy-icon.png" width="24" height="24" alt="copy" />
           </ButtonCaption>
         </CaptureButton>
+        <br/>
+        <br/>
       </Row>
     </Container>
   );
