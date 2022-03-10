@@ -5,6 +5,7 @@ import {
   useLocation,
   Link,
 } from 'react-router-dom';
+import html2canvas from 'html2canvas';
 
 import Title from './components/Title';
 import Counter from './components/Counter';
@@ -95,6 +96,25 @@ const DistributionLabel = styled(PriceLabel)`
   font-weight: 600;
 `;
 
+const CaptureButton = styled.div`
+  width: 100%;
+  padding: 8px 0;
+  background-color: #6b7f00;
+  color: #ffffff;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+`;
+
+const ButtonCaption = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  align-items: center;
+`;
+
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
@@ -130,6 +150,30 @@ const App = () => {
   if (query.get('beta') === 'true') {
     return <VisionPage />
   }
+
+  const capture = async (type: 'download' | 'copy') => {
+    const elem = document.getElementById('distribution-section');
+    if (window && navigator && elem) {
+      const canvas = await html2canvas(elem);
+      canvas.toBlob((blob) => {
+        if (blob) {
+          if (type === 'download') {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'distribution.png';
+            link.click();
+          }
+          if (type === 'copy') {
+            const data = [new ClipboardItem({ [blob.type]: blob })];
+            navigator.clipboard.write(data);
+          }
+        }
+      });
+    }
+  };
+
+
   return (
     <Container>
       <Title />
@@ -177,7 +221,7 @@ const App = () => {
           <PriceLabel>Grand Total</PriceLabel>
           <PriceText>{discounted}</PriceText>
         </Column>
-        <DistributionColumn>
+        <DistributionColumn id="distribution-section">
           <DistributionLabel>Distribution</DistributionLabel>
           {memberList.map((member, i) => {
             const { discount, toBePaid } = priceDistribution(member.amount);
@@ -187,6 +231,21 @@ const App = () => {
             );
           })}
         </DistributionColumn>
+      </Row>
+      <Row>
+        <CaptureButton onClick={() => capture('download')}>
+          <ButtonCaption>
+            <div>Download result as image</div>
+            <div><img src="/download-icon.png" width="24" height="24" alt="download" /></div>
+          </ButtonCaption>
+        </CaptureButton>
+        <div style={{ display: 'flex', margin: '8px 16px', justifyContent: 'center', alignItems: 'center' }}>or</div>
+        <CaptureButton onClick={() => capture('copy')}>
+          <ButtonCaption>
+            <div>Copy result image to clipboard</div>
+            <img src="/copy-icon.png" width="24" height="24" alt="copy" />
+          </ButtonCaption>
+        </CaptureButton>
       </Row>
     </Container>
   );
