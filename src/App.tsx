@@ -58,7 +58,7 @@ const DistributionColumn = styled(Column)`
 
 const StepColumn = styled(Column)`
   background-color: ${props => props.theme.white};
-  color: ${props => props.theme.black};
+  color: ${props => props.theme.notBlack};
   &:nth-child(2) {
     margin: 0 8px;
     flex: 2;
@@ -99,7 +99,7 @@ const DistributionLabel = styled(PriceLabel)`
 const CaptureButton = styled.div`
   width: 100%;
   padding: 8px 0;
-  background-color: #6b7f00;
+  background-color: #5bc131;
   color: #ffffff;
   border-radius: 6px;
   display: flex;

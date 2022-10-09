@@ -18,11 +18,13 @@ const H1 = styled.h1`
 const Eng = styled.h2`
   margin: 0;
   font-size: 1em;
+  color: ${props => props.theme.notBlack};
 `;
 
 const Description = styled.p`
   font-size: 16px;
   font-weight: 600;
+  color: ${props => props.theme.notBlack};
 `;
 
 const Title = () => {
