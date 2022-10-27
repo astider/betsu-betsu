@@ -29,8 +29,9 @@ const Title = () => {
   return (
     <Container>
       <H1>べつべつ</H1>
-      <Eng>Betsu === Separately</Eng>
-      <Description>Just 3 steps then you can calculate your meal discount easily!</Description>
+      <Eng>Betsu means "Separately"</Eng>
+      <Description>Separate the bills have never been easier!</Description>
+      {/* <Description>Just 3 steps then you can calculate your meal discount easily!</Description> */}
     </Container>
   );
 };
