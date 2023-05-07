@@ -115,6 +115,20 @@ const ButtonCaption = styled.div`
   align-items: center;
 `;
 
+export const PromptPayInput = styled.input`
+  border-radius: 6px;
+  border: 1px solid #d8d8d8;
+  padding: 5px 16px;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  width: 300px;
+  margin-left: 8px;
+  @media (max-width: 768px) {
+    width: 60%;
+  }
+`;
+
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
@@ -123,6 +137,8 @@ const App = () => {
   const { memberList, setMemberList, addMember, removeMember, sumTotal } = useMemberList([{ amount: 0, name: 'No. 1' }]);
   const { discount, setDiscount, getDiscountedPrice } = useDiscount(0);
   const [isConstantDiscount, setIsConstantDiscount] = useState(false);
+  const [ppCode, setPPCode] = useState('');
+  const [qrReady, setQRReady] = useState(false);
   const discounted = getDiscountedPrice(sumTotal, isConstantDiscount);
   const query = useQuery();
   const priceDistribution = (price: number) => {
@@ -149,6 +165,18 @@ const App = () => {
   }
   if (query.get('beta') === 'true') {
     return <VisionPage />
+  }
+
+  const handlePPCodeChange = (val: string) => {
+    setPPCode(val);
+    if (val.length === 10 || val.length === 13) {
+      // const imgData = new Image();
+      // imgData.src = `https://promptpay.io/${ppCode}`;
+      // const data = imgData.d
+      setQRReady(true);
+    } else {
+      setQRReady(false);
+    }
   }
 
   const capture = async (type: 'download' | 'copy') => {
@@ -214,6 +242,15 @@ const App = () => {
         </StepColumn>
       </Row>
       <Row>
+        <StepColumn>
+          <StepTitle>4. Create PromptPay QR</StepTitle>
+          <div style={{ display: 'flex', }}>
+            <p>Enter your PromptPay code (Phone Number or ID Number):</p>
+            <PromptPayInput value={ppCode} onChange={(e) => handlePPCodeChange(e.target.value)} />
+          </div>
+        </StepColumn>
+      </Row>
+      <Row>
         <Column>
           <PriceLabel>Net Total</PriceLabel>
           <PriceText>{sumTotal}</PriceText>
@@ -228,9 +265,16 @@ const App = () => {
             const { discount, toBePaid } = priceDistribution(member.amount);
             return (
               // <p>No. {i + 1} paid {toBePaid} (Discount: {discount})</p>
-              <p>{member.name} paid {toBePaid} (Discount: {discount})</p>
+              <p>{member.name} {discount > 0 ? `got discount ${discount}` : ''}, net price: {toBePaid}</p>
             );
           })}
+          {qrReady && (
+            <div style={{ margin: '8px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <p>Scan the QR below to pay </p>
+              <p style={{ margin: '-8px 0 8px', color: 'yellow', fontSize: '12px' }}>BUG: กด copy image ด้านล่างจะไม่ติด QR ลากแคปจอเองไปก่อนละกันนะ</p>
+              <img src={`https://promptpay.io/${ppCode}`} alt="promptpay QR code" width={150} height={150} />
+            </div>
+          )}
         </DistributionColumn>
       </Row>
       <Row>
